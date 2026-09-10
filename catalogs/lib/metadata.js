@@ -3,7 +3,7 @@ import { Type } from '../../addon/lib/types.js';
 
 const CINEMETA_URL = 'https://v3-cinemeta.strem.io';
 const KITSU_URL = 'https://anime-kitsu.strem.fun';
-const TIMEOUT = 30000;
+const TIMEOUT = parseInt(process.env.METADATA_TIMEOUT) || 10000;
 const MAX_SIZE = 40;
 
 export async function getMetas(ids, type) {

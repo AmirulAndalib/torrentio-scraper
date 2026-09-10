@@ -10,6 +10,7 @@ import * as repository from './lib/repository.js';
 const CACHE_MAX_AGE = parseInt(process.env.CACHE_MAX_AGE) || 4 * 60 * 60; // 4 hours in seconds
 const STALE_REVALIDATE_AGE = 4 * 60 * 60; // 4 hours
 const STALE_ERROR_AGE = 7 * 24 * 60 * 60; // 7 days
+const EMPTY_CACHE_MAX_AGE = 30 * 60; // 30 mins - degrade a failed catalog to empty briefly instead of erroring
 
 const manifest = createManifest();
 const builder = new addonBuilder(manifest);
@@ -41,7 +42,10 @@ builder.defineCatalogHandler((args) => {
         staleRevalidate: STALE_REVALIDATE_AGE,
         staleError: STALE_ERROR_AGE
       }))
-      .catch(error => Promise.reject(`Failed retrieving catalog ${args.id}: ${error.message || error}`));
+      .catch(error => {
+        console.log(`Failed retrieving catalog ${args.id}: ${error.message || error}`);
+        return { metas: [], cacheMaxAge: EMPTY_CACHE_MAX_AGE };
+      });
 })
 
 async function getCursor(catalog, providers, genre, offset) {
